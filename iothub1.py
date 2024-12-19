@@ -1,6 +1,8 @@
 import network
 import time
 import machine
+import urequests
+import os
 
 from umqtt.simple import MQTTClient
 from machine import Pin
@@ -28,7 +30,39 @@ else:
     print('connected')
     status = wlan.ifconfig()
     print( 'ip = ' + status[0] )
- 
+
+# Download the DigiCert Certificate Der File
+print("Downloading der file from repo")
+
+filename = "digicert.der"
+url = "https://www.petecodes.co.uk/picow-iothub/digicert.der"
+
+def file_exists(filename):
+    try:
+        os.stat(filename)
+        return True
+    except OSError:
+        return False
+
+if not file_exists(filename):
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+    response = urequests.get(url, headers=headers)
+    print(f"HTTP GET request to {url} returned status code {response.status_code}")
+    if response.status_code == 200:
+        with open(filename, "wb") as file:
+            file.write(response.content)
+        print("File downloaded successfully")
+    else:
+        print("Failed to download file")
+        print(response.status_code)
+        print("Response content:", response.content)
+        time.sleep(5)
+        machine.reset()
+    response.close()
+else:
+    print("File already exists")
+
+
 led = Pin(15, Pin.OUT)
 button = Pin(14, Pin.IN, Pin.PULL_DOWN)
 
