@@ -62,7 +62,7 @@ if not file_exists(filename):
 else:
     print("File already exists")
 
-
+# Configure GPIO
 led = Pin(15, Pin.OUT)
 button = Pin(14, Pin.IN, Pin.PULL_DOWN)
 
